@@ -1,0 +1,11 @@
+# Global defaults shared by all experiments.
+# Experiment configs override these. Every training run must be fully
+# reproducible from (config file + git commit + seed) — see docs/DESIGN.md §8.
+
+seed: 42
+device: auto # auto | cpu | cuda
+
+paths:
+  data: data/
+  runs: runs/ # TensorBoard logs, one subdir per run
+  checkpoints: checkpoints/

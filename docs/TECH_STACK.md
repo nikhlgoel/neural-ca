@@ -25,7 +25,7 @@ live in [decisions/](decisions/) (ADRs); this file is the inventory.
 
 | Layer | Direction | Notes |
 |---|---|---|
-| Inference service | FastAPI + exported model (ONNX or TorchScript) | Contract designed in Phase 5 |
+| Inference | **In-browser ONNX** via onnxruntime-web — *decided* | Export the deterministic step, mask in JS; ONNX verified == PyTorch (~1e-6), 5.9 KB. [ADR-0004](decisions/ADR-0004-in-browser-inference-onnx.md) |
 | Demo frontend | React + Vite + TypeScript + Tailwind in `apps/web` | If the concept allows, **in-browser inference** via onnxruntime-web → free static hosting (GitHub Pages), no server to pay for or keep alive |
 | Scratch demos | Gradio | Throwaway UIs during research only — never the shipped product |
 | Dataset / weights hosting | Hugging Face Hub or GitHub Releases | ADR at Phase 6 |

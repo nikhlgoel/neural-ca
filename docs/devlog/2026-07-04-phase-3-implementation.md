@@ -42,7 +42,34 @@
 - [x] Visualisation (`neural_ca/eval/render.py` + `scripts/visualize.py`): still PNG, growth GIF,
       and a 3D alpha surface. A 1000-step run reached loss **0.00845** and a clearly recognisable
       heart. (Bug found + fixed: `.numpy()` on a grad tensor → `.detach()` in the renderers.)
-- [ ] Checkpoint save/load (model + optimiser + pool + RNG) to `checkpoints/`.
-- [ ] Full 8,000-step run; log to TensorBoard under `runs/`.
+- [x] Checkpoint save/load (weights + model config) — `neural_ca/training/checkpoint.py`.
+      (Optimiser/pool/RNG resume is a later nicety.)
+- [x] TensorBoard logging (`train --log-dir`) + a late LR schedule.
+- [ ] Full 8,000-step run under TensorBoard.
 - [ ] Persistence + regeneration metrics, then the ablation sweep (hidden channels, pool on/off,
       damage on/off) — Phase 4.
+- [ ] Phase 5: build the `apps/web` React + Three.js frontend on the verified ONNX model.
+
+## Update — training upgrades & ONNX export (de-risking the demo)
+
+Added, all tested (**22 tests green**):
+
+- **Checkpointing** (`neural_ca/training/checkpoint.py`): save/load weights + `ModelConfig`.
+- **LR schedule**: `MultiStepLR` drops the LR ×0.3 at 70% of steps to sharpen the final pattern.
+- **TensorBoard**: `uv run python scripts/train.py --config ... --log-dir runs/heart`.
+- **ONNX export** (`neural_ca/eval/export.py`, `scripts/export_onnx.py`): export the deterministic
+  step core; onnxruntime reproduces PyTorch to **9.5e-07**. Exported model is **5.9 KB**. Approach:
+  [ADR-0004](../decisions/ADR-0004-in-browser-inference-onnx.md).
+
+800-step heart checkpoint (`checkpoints/heart.pt`): loss 0.063 → ~0.012.
+
+### Issues faced & resolved
+
+- torch 2.11 defaults to the dynamo ONNX exporter → needs `onnx` + `onnxscript`; switched to
+  `dynamo=True` + `dynamic_shapes`, opset 18. (Unit test passed under pytest but the CLI crashed —
+  see next.)
+- **Windows console is cp1252** → torch's `✅` progress print and our `→`/`—` crashed the scripts.
+  Fixed with `verbose=False` on export, ASCII-only script prints, and `sys.stdout.reconfigure("utf-8")`.
+
+This clears the biggest demo risk: the model provably runs under ONNX Runtime, so the Phase 5
+in-browser 3D frontend is unblocked.

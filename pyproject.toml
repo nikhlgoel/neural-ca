@@ -26,6 +26,9 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.8",
     "pre-commit>=4.0",
+    "onnxruntime>=1.27.0",
+    "onnx>=1.22.0",
+    "onnxscript>=0.7.1",
 ]
 
 # ── PyTorch wheel selection ─────────────────────────────────────────────

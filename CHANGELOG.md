@@ -27,3 +27,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - First training run (heart target): loss 0.063 → 0.018 in 400 steps (~2 min), peak 1.67 GB VRAM.
 - Visualisation (`neural_ca/eval/render.py`, `scripts/visualize.py`): render a grown NCA as a
   still PNG, a growth GIF, and a 3D alpha surface. A 1000-step heart run reached loss 0.0085.
+- Training upgrades: checkpointing (`neural_ca/training/checkpoint.py`), a late LR schedule, and
+  TensorBoard logging (`train --log-dir`).
+- ONNX export (`neural_ca/eval/export.py`, `scripts/export_onnx.py`): export the deterministic
+  step core and verify it against PyTorch (~1e-6). Exported heart model is 5.9 KB. See ADR-0004.

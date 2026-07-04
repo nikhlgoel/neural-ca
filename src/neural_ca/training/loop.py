@@ -28,10 +28,24 @@ def build_target(cfg: Config) -> torch.Tensor:
     return pad_to_grid(target, cfg.data.pad)
 
 
-def train(cfg: Config, device: torch.device | None = None, log_every: int = 100) -> dict:
-    """Train an NCA and return the model, loss history, and target."""
+def train(
+    cfg: Config,
+    device: torch.device | None = None,
+    log_every: int = 100,
+    log_dir: str | Path | None = None,
+) -> dict:
+    """Train an NCA and return the model, loss history, and target.
+
+    If ``log_dir`` is set, per-step losses are also written there for TensorBoard.
+    """
     set_seed(cfg.seed)
     device = device or resolve_device(cfg.device)
+
+    writer = None
+    if log_dir is not None:
+        from torch.utils.tensorboard import SummaryWriter
+
+        writer = SummaryWriter(str(log_dir))
 
     target = build_target(cfg).to(device)  # (4, H, W)
     grid = target.shape[-1]
@@ -41,6 +55,10 @@ def train(cfg: Config, device: torch.device | None = None, log_every: int = 100)
         cfg.model.channels, cfg.model.hidden, cfg.model.fire_rate, cfg.model.alive_threshold
     ).to(device)
     opt = torch.optim.Adam(model.parameters(), lr=cfg.train.lr)
+    # Drop the LR late in training to sharpen the final pattern (docs/DESIGN.md §5).
+    sched = torch.optim.lr_scheduler.MultiStepLR(
+        opt, milestones=[max(1, int(cfg.train.steps * 0.7))], gamma=0.3
+    )
 
     seed_state = make_seed_state(1, cfg.model.channels, grid)[0].to(device)  # (C, H, W)
     pool = SamplePool(seed_state.cpu(), cfg.train.pool_size)
@@ -74,9 +92,15 @@ def train(cfg: Config, device: torch.device | None = None, log_every: int = 100)
             if p.grad is not None:
                 p.grad /= p.grad.norm() + 1e-8
         opt.step()
+        sched.step()
 
         pool.commit(idx, out)
         if it == 1 or it % log_every == 0:
-            history.append((it, loss.detach().item()))
+            value = loss.detach().item()
+            history.append((it, value))
+            if writer is not None:
+                writer.add_scalar("loss/mse", value, it)
 
+    if writer is not None:
+        writer.close()
     return {"model": model, "history": history, "target": target}

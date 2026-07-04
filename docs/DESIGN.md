@@ -132,10 +132,15 @@ unneeded at this batch size.
 run directory that produced it (§8). Sanity baseline: the qualitative Growing NCA (Distill 2020)
 result on a comparable target.
 
-## 7. Inference & serving — **[TBD — Phase 5]**
+## 7. Inference & serving *(decided — [ADR-0004](decisions/ADR-0004-in-browser-inference-onnx.md))*
 
-Export format and service contract; in-browser inference (onnxruntime-web) is preferred if the
-concept allows it — it makes the demo free to host and impossible to take down.
+Inference runs **in the browser** — the model is ~8.3k params. We export the *deterministic core*
+of one step (perception + update MLP → per-cell delta) to ONNX (opset 18, dynamic batch/H/W); the
+stochastic fire mask, residual add, and alive-masking are done in JavaScript. `scripts/export_onnx.py`
+verifies the ONNX output matches PyTorch (currently ~1e-6) on every export, and the exported model
+is **5.9 KB**. Runtime: onnxruntime-web (WebGPU, WASM fallback); hosting: a static site, no server.
+A separate WebSocket streams *live training* progress for the demo, but inference itself is fully
+client-side.
 
 ## 8. Reproducibility standards *(decided)*
 

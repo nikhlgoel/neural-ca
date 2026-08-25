@@ -22,13 +22,14 @@
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
     body {
       margin: 0;
       color: var(--ink);
       background: var(--bg);
       font-family: 'Space Grotesk', sans-serif;
       line-height: 1.5;
+      overflow-x: hidden;
     }
     body::before {
       content: '';
@@ -53,6 +54,23 @@
     .nav-links a { text-decoration: none; }
     .nav-links a:hover { color: var(--ink); }
     .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 70px; align-items: center; min-height: 650px; padding: 90px 0 110px; }
+    section { scroll-margin-top: 28px; }
+    .motion-ready .reveal { position: relative; opacity: 0; transform: translateY(28px) scale(.985); clip-path: inset(0 0 100% 0); transition: opacity .8s ease, transform .8s cubic-bezier(.22, 1, .36, 1), clip-path .8s cubic-bezier(.22, 1, .36, 1); }
+    .motion-ready .reveal::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: var(--lime); transform: scaleY(0); transform-origin: top; transition: transform .7s cubic-bezier(.22, 1, .36, 1); }
+    .motion-ready .reveal.from-left { transform: translateX(-34px) scale(.985); clip-path: inset(0 100% 0 0); }
+    .motion-ready .reveal.from-right { transform: translateX(34px) scale(.985); clip-path: inset(0 0 0 100%); }
+    .motion-ready .reveal.is-visible { opacity: 1; transform: translate(0) scale(1); clip-path: inset(0); }
+    .motion-ready .reveal.is-visible::before { transform: scaleY(1); }
+    .motion-ready .reveal.is-leaving { opacity: .72; transform: translateY(-9px) scale(.99); clip-path: inset(0); transition-duration: .45s; }
+    .motion-ready .reveal.is-leaving::before { transform: scaleY(.35); }
+    .motion-ready .stagger > * { opacity: 0; transform: translateY(18px) scale(.96); clip-path: inset(0 0 100% 0); transition: opacity .65s ease, transform .65s cubic-bezier(.22, 1, .36, 1), clip-path .65s cubic-bezier(.22, 1, .36, 1); }
+    .motion-ready .stagger.is-visible > * { opacity: 1; transform: translateY(0) scale(1); clip-path: inset(0); }
+    .motion-ready .stagger.is-leaving > * { opacity: .72; transform: translateY(-7px) scale(.985); clip-path: inset(0); transition-duration: .4s; }
+    .motion-ready .stagger.is-visible > :nth-child(2) { transition-delay: .09s; }
+    .motion-ready .stagger.is-visible > :nth-child(3) { transition-delay: .18s; }
+    .motion-ready .stagger.is-visible > :nth-child(4) { transition-delay: .27s; }
+    .motion-ready .stagger.is-visible > :nth-child(5) { transition-delay: .36s; }
+    .motion-ready .stagger.is-visible > :nth-child(6) { transition-delay: .45s; }
     h1 { max-width: 700px; margin: 17px 0 25px; font-size: clamp(3.5rem, 8vw, 7rem); line-height: .93; letter-spacing: -.08em; }
     h1 em { color: var(--lime); font-style: normal; }
     .lede { max-width: 560px; color: var(--muted); font-size: 1.08rem; }
@@ -60,10 +78,10 @@
     .button { display: inline-flex; align-items: center; gap: 9px; padding: 12px 17px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: rgba(255,255,255,.04); font: 500 .85rem 'DM Mono', monospace; text-decoration: none; cursor: pointer; transition: transform .2s ease, filter .2s ease, background .2s ease; }
     .button.primary { border-color: var(--cyan); color: #071011; background: var(--cyan); }
     .button:hover { transform: translateY(-2px); filter: brightness(1.08); }
-    .visual { position: relative; min-height: 390px; border: 1px solid var(--line); background: rgba(5, 9, 11, .55); overflow: hidden; }
+    .visual { position: relative; min-width: 0; min-height: 390px; border: 1px solid var(--line); background: rgba(5, 9, 11, .55); overflow: hidden; }
     .visual::before { content: 'LIVE / LOCAL UPDATE RULE'; position: absolute; top: 17px; left: 19px; z-index: 1; color: var(--dim); font: .66rem 'DM Mono', monospace; letter-spacing: .1em; }
-    canvas { display: block; width: 100%; height: 390px; }
-    .visual-note { position: absolute; right: 17px; bottom: 15px; color: var(--dim); font: .67rem 'DM Mono', monospace; }
+    canvas { display: block; width: 100%; max-width: 100%; height: 390px; }
+    .visual-note { position: absolute; right: 17px; bottom: 15px; max-width: calc(100% - 34px); color: var(--dim); font: .67rem 'DM Mono', monospace; }
     section { padding: 95px 0; border-top: 1px solid var(--line); }
     .section-head { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 38px; }
     h2 { max-width: 600px; margin: 9px 0 0; font-size: clamp(2rem, 4vw, 3.7rem); line-height: 1; letter-spacing: -.06em; }
@@ -76,17 +94,21 @@
     .proofline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
     .proofline strong { display: block; color: var(--ink); font: 1rem 'DM Mono', monospace; }
     .proofline span { display: block; margin-top: 5px; color: var(--dim); font-size: .72rem; }
-    .roadmap { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+    .roadmap { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; min-width: 0; overflow: hidden; }
     .stage { display: grid; grid-template-columns: 74px 1fr; gap: 20px; padding: 23px 0; border-top: 1px solid var(--line); }
     .stage:last-child { border-bottom: 1px solid var(--line); }
     .stage-number { color: var(--dim); font: .75rem 'DM Mono', monospace; }
     .stage.current .stage-number, .stage.current h3 { color: var(--lime); }
     .stage h3 { margin: 0 0 5px; font-size: 1.03rem; }
     .stage p { margin: 0; color: var(--muted); font-size: .88rem; }
-    .quote { padding: 35px; border-left: 2px solid var(--orange); background: rgba(255,155,98,.055); color: var(--ink); font-size: 1.15rem; }
+    .quote { min-width: 0; padding: 35px; border-left: 2px solid var(--orange); background: rgba(255,155,98,.055); color: var(--ink); font-size: 1.15rem; overflow-wrap: anywhere; }
     .quote small { display: block; margin-top: 18px; color: var(--muted); font: .7rem 'DM Mono', monospace; }
     footer { padding: 35px 0 55px; color: var(--dim); font: .72rem 'DM Mono', monospace; }
     footer a { color: var(--muted); }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .motion-ready .reveal, .motion-ready .stagger > * { opacity: 1; transform: none; clip-path: none; transition: none; }
+    }
     @media (max-width: 760px) {
       .wrap { width: min(100% - 28px, 600px); }
       .nav-links { gap: 12px; font-size: .72rem; }
@@ -110,7 +132,7 @@
 
     <main id="top">
       <header class="hero">
-        <div>
+        <div class="hero-copy reveal from-left">
           <div class="eyebrow mono">An open ML research project / 2026</div>
           <h1>Small rules.<br><em>Big forms.</em></h1>
           <p class="lede">neural-ca teaches a tiny neural cellular automaton to grow an image from a single living cell. Every pixel shares one learned local rule; structure emerges through repetition.</p>
@@ -119,25 +141,25 @@
             <button class="button" id="copy-command" type="button">Copy quick start <span aria-hidden="true">⧉</span></button>
           </div>
         </div>
-        <div class="visual" aria-label="Animated visualization of local cell updates">
+        <div class="visual reveal from-right" aria-label="Animated visualization of local cell updates">
           <canvas id="cells" width="520" height="390"></canvas>
           <span class="visual-note">seed &rarr; grown target / step <span id="step">000</span></span>
         </div>
       </header>
 
       <section id="why">
-        <div class="section-head"><div><div class="eyebrow mono">01 / The premise</div><h2>Useful because it is small.</h2></div><p class="section-intro">Use cases include self-repairing graphics, lightweight segmentation research, and learning how a model behaves one local update at a time.</p></div>
-        <div class="grid">
+        <div class="section-head reveal"><div><div class="eyebrow mono">01 / The premise</div><h2>Useful because it is small.</h2></div><p class="section-intro">Use cases include self-repairing graphics, lightweight segmentation research, and learning how a model behaves one local update at a time.</p></div>
+        <div class="grid reveal stagger">
           <article class="panel"><div class="number">8.3k</div><h3>Learned parameters</h3><p>The update MLP is tiny by design. The grid and its local perception stay fixed, making the learned rule visible.</p></article>
           <article class="panel"><div class="number">40&times;40</div><h3>One focused target</h3><p>The first task is intentionally narrow: grow a procedural RGBA target, then keep it alive instead of chasing a benchmark.</p></article>
           <article class="panel"><div class="number">5.9 KB</div><h3>Browser-ready core</h3><p>ONNX export is verified against PyTorch to roughly 1e-6, opening a path to fast, serverless in-browser inference.</p></article>
         </div>
-        <div class="proofline" aria-label="Early experiment results"><div><strong>0.063 &rarr; 0.018</strong><span>loss / first 400 steps</span></div><div><strong>1.67 GB</strong><span>peak VRAM / RTX 3050</span></div><div><strong>22 green</strong><span>tests / implementation checkpoint</span></div></div>
+        <div class="proofline reveal stagger" aria-label="Early experiment results"><div><strong>0.063 &rarr; 0.018</strong><span>loss / first 400 steps</span></div><div><strong>1.67 GB</strong><span>peak VRAM / RTX 3050</span></div><div><strong>22 green</strong><span>tests / implementation checkpoint</span></div></div>
       </section>
 
       <section id="roles">
-        <div class="section-head"><div><div class="eyebrow mono">02 / Where it helps</div><h2>Built for curious builders.</h2></div><p class="section-intro">This is a research foundation, not a drop-in product. Its value depends on whether your work benefits from tiny, local, inspectable rules.</p></div>
-        <div class="grid">
+        <div class="section-head reveal"><div><div class="eyebrow mono">02 / Where it helps</div><h2>Built for curious builders.</h2></div><p class="section-intro">This is a research foundation, not a drop-in product. Its value depends on whether your work benefits from tiny, local, inspectable rules.</p></div>
+        <div class="grid reveal stagger">
           <article class="panel"><div class="eyebrow mono">ML / AI engineers</div><h3>Learn the whole loop</h3><p>Use it to practice architecture, training, evaluation, checkpointing, export, and reproducibility without hiding behind a large pretrained model.</p></article>
           <article class="panel"><div class="eyebrow mono">Games / graphics</div><h3>Explore living visuals</h3><p>NCAs can inspire procedural growth, evolving textures, self-healing sprites, and worlds shaped by local interaction. This project is a starting point for those experiments.</p></article>
           <article class="panel"><div class="eyebrow mono">Browser / edge</div><h3>Ship less model</h3><p>A 5.9 KB ONNX core points toward low-latency experiences that run on a laptop, phone, or browser without sending every interaction to a server.</p></article>
@@ -148,21 +170,21 @@
       </section>
 
       <section id="progress">
-        <div class="section-head"><div><div class="eyebrow mono">03 / Current state</div><h2>The experiment is moving.</h2></div><p class="section-intro">The first heart run is learning: loss fell from 0.063 to 0.018 in 400 steps on a consumer RTX 3050. The next honest question is whether the form can persist and repair itself.</p></div>
-        <div class="roadmap">
-          <div>
+        <div class="section-head reveal"><div><div class="eyebrow mono">03 / Current state</div><h2>The experiment is moving.</h2></div><p class="section-intro">The first heart run is learning: loss fell from 0.063 to 0.018 in 400 steps on a consumer RTX 3050. The next honest question is whether the form can persist and repair itself.</p></div>
+        <div class="roadmap reveal">
+          <div class="stagger">
             <div class="stage"><div class="stage-number">DONE / 00–02</div><div><h3>Research, scope, design</h3><p>Concept selected, Tier A locked, architecture and reproducibility rules documented.</p></div></div>
             <div class="stage current"><div class="stage-number">NOW / 03</div><div><h3>Train the Growing NCA</h3><p>Model, procedural targets, sample pool, damage training, checkpoints, rendering, and ONNX export are working.</p></div></div>
             <div class="stage"><div class="stage-number">NEXT / 04</div><div><h3>Measure the claims</h3><p>Run the full 8,000-step experiment, then test persistence, regeneration, and controlled ablations.</p></div></div>
             <div class="stage"><div class="stage-number">LATER / 05–06</div><div><h3>Ship the interactive demo</h3><p>Wrap the verified model in a React + Three.js interface and release the checkpoint with a technical report.</p></div></div>
           </div>
-          <div class="quote">“A negative result still counts. The point is to understand the mechanism well enough to explain what happened.”<small>PROJECT PRINCIPLE / FROM THE PRD</small></div>
+          <div class="quote reveal from-right">“A negative result still counts. The point is to understand the mechanism well enough to explain what happened.”<small>PROJECT PRINCIPLE / FROM THE PRD</small></div>
         </div>
       </section>
 
       <section>
-        <div class="section-head"><div><div class="eyebrow mono">04 / Setbacks & risks</div><h2>What can get in the way?</h2></div></div>
-        <div class="grid">
+        <div class="section-head reveal"><div><div class="eyebrow mono">04 / Setbacks & risks</div><h2>What can get in the way?</h2></div></div>
+        <div class="grid reveal stagger">
           <article class="panel"><h3>Stability is hard</h3><p>NCA gradients can spike across many unrolled steps. Gradient normalisation and randomized firing keep the first runs from diverging.</p></article>
           <article class="panel"><h3>Evidence is still pending</h3><p>The early heart run is promising, but it is not yet a persistence or regeneration result. Those metrics are the next gate.</p></article>
           <article class="panel"><h3>Scope stays deliberately tight</h3><p>No frontier-model race, no production serving stack, no inflated claims. Build one reproducible result, document the setbacks, then extend it.</p></article>
@@ -210,6 +232,34 @@
       requestAnimationFrame(draw);
     }
     draw();
+
+    document.body.classList.add('motion-ready');
+    const revealItems = document.querySelectorAll('.reveal, .stagger');
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      revealItems.forEach((item) => item.classList.add('is-visible'));
+    } else {
+      let revealTicking = false;
+      const updateRevealStates = () => {
+        revealItems.forEach((item) => {
+          const bounds = item.getBoundingClientRect();
+          const inView = bounds.top < innerHeight * .9 && bounds.bottom > innerHeight * .1;
+          if (inView) {
+            item.classList.add('is-visible');
+            item.classList.remove('is-leaving');
+          } else if (item.classList.contains('is-visible')) {
+            item.classList.add('is-leaving');
+          }
+        });
+        revealTicking = false;
+      };
+      const requestRevealUpdate = () => {
+        if (revealTicking) return;
+        revealTicking = true;
+        requestAnimationFrame(updateRevealStates);
+      };
+      window.addEventListener('scroll', requestRevealUpdate, { passive: true });
+      updateRevealStates();
+    }
 
     document.getElementById('copy-command').addEventListener('click', async (event) => {
       await navigator.clipboard.writeText('uv sync && uv run pytest');

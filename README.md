@@ -10,6 +10,8 @@ Tiny models where every pixel runs one shared, learned, local rule — and globa
 [docs/devlog](docs/devlog/); the candidate analysis and NCA deep dive in
 [docs/research](docs/research/).
 
+**Project site:** [neural-ca on GitHub Pages](https://nikhlgoel.github.io/neural-ca/)
+
 ## Why this project exists
 
 1. **Learn by building.** Implement a model completely from scratch — architecture, training
